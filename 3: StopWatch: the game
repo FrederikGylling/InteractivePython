@@ -1,0 +1,97 @@
+# find original code here http://www.codeskulptor.org/#user48_2POgAPAmFl_6.py
+
+import simplegui
+
+# define global variables
+WIDTH = 200
+HEIGHT = 200
+time = 0
+stops = 0
+hit = 0
+
+# a boolean function to determine if stopwatch is running or not
+# it helps mitigate getting "hit" when stopwatch is stopped
+running = False 
+
+# define helper function format that converts time
+# in tenths of seconds into formatted string A:BC.D
+def format(t):
+    """ converting tenth of seconds into format of A:BC.D """
+    # t in in tenths of seconds. To get to seconds we divide by 10
+    # to get to minutes we then divide by 60. That's the same as dividing by 600
+    # in order to only count full minutes, we do integer division ( //, not /)
+    A = str( t // 600 )
+    
+    # t in in tenths of seconds. To get to seconds we divide by 10
+    # instead of dividing with 60 to get to minutes, we take the remainder
+    # the remainder give us .xx minutes ( the tens second and the second )
+    # we are interested in the tens second, so we use integer division 
+    B = str(((t // 10) % 60) // 10)
+    
+    # t in in tenths of seconds. To get to seconds we divide by 10
+    # instead of dividing with 60 to get to minutes, we take the remainder
+    # the remainder give us .xx minutes ( the tens second and the second )
+    # we are interested in the second, so we take the remainder of 10
+    C = str(((t // 10) % 60) % 10)
+    
+    # t in in tenths of seconds, so that's great
+    # by getting the remainder of 10, we get the .x after dividing with 10
+    # this returns us the tenths of a second as an integer
+    D = str(t % 10) 
+    
+    # we return to the drawer function ( not print )
+    return A + ":" + B + C + "." + D    
+    
+# define event handlers for buttons; "Start", "Stop", "Reset"
+def start():
+    """ button to start timer """
+    global running
+    running = True
+    timer.start()
+    
+def stop():
+    timer.stop()
+    global stops, hit, running
+    if running == True and (time % 10) == 0:
+        stops += 1
+        hit += 1
+        running = False
+    elif running == True:
+        stops += 1
+        running = False
+    else:
+        ""
+
+def reset():
+    global time, stops, hit, running
+    timer.stop()
+    running = False
+    time = 0
+    hit = 0
+    stops = 0 
+
+# define event handler for timer with 0.1 sec interval
+def timer():
+    global time
+    time += 1
+    
+# define draw handler
+def draw_handler(canvas):
+    canvas.draw_text(format(time), [(WIDTH / 2.2), (HEIGHT / 2)], 30, "white")
+    canvas.draw_text(str(hit) + " / " + str(stops), [(WIDTH * 0.8), (HEIGHT * 0.1)], 20, "red")
+    
+# create frame
+frame = simplegui.create_frame("Stopwatch: The Game", WIDTH, HEIGHT, 100)
+
+
+# register event handlers
+start_button = frame.add_button("start", start)
+stop_button = frame.add_button("stop", stop)
+reset_button = frame.add_button("reset", reset)
+frame.set_draw_handler(draw_handler)
+timer = simplegui.create_timer(100, timer)
+
+# start frame
+frame.start()
+
+# Please remember to review the grading rubric
